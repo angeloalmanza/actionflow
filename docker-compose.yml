@@ -1,0 +1,101 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: actionflow_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - PHP_OPCACHE_ENABLE=0
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - actionflow
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: actionflow_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+      - frontend
+    networks:
+      - actionflow
+
+  mysql:
+    image: mysql:8.0
+    container_name: actionflow_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: actionflow
+      MYSQL_USER: actionflow
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - actionflow
+
+  redis:
+    image: redis:7-alpine
+    container_name: actionflow_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - actionflow
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: actionflow_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - actionflow
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: actionflow_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3
+    volumes:
+      - ./backend:/var/www
+    depends_on:
+      - app
+      - redis
+    networks:
+      - actionflow
+
+volumes:
+  mysql_data:
+
+networks:
+  actionflow:
+    driver: bridge

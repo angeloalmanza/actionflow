@@ -19,9 +19,11 @@ export default function Meetings() {
   const { data: meetings, isLoading } = useQuery({
     queryKey: ['meetings', workspaceId],
     queryFn:  () => getMeetings(workspaceId).then((r) => r.data),
-    // Polling ogni 4 secondi se ci sono meeting in elaborazione
-    refetchInterval: (data) =>
-      data?.some((m) => m.status === 'pending' || m.status === 'processing') ? 4000 : false,
+    // Polling ogni 4 secondi se ci sono meeting in elaborazione (sintassi React Query v5)
+    refetchInterval: (query) => {
+      const data = query.state.data
+      return data?.some((m) => m.status === 'pending' || m.status === 'processing') ? 4000 : false
+    },
   })
 
   const createMut = useMutation({

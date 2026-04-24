@@ -40,7 +40,7 @@ class WorkspaceController extends Controller
         $this->authorizeWorkspace($workspace);
 
         return response()->json(
-            $workspace->load(['owner', 'members'])
+            $workspace->load(['owner', 'members', 'tasks.assignee'])
                       ->loadCount(['meetings', 'tasks'])
         );
     }

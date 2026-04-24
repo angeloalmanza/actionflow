@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
@@ -73,8 +73,11 @@ export default function Dashboard() {
   const { data: workspaces, isLoading } = useQuery({
     queryKey: ['workspaces'],
     queryFn:  () => getWorkspaces().then((r) => r.data),
-    onSuccess: (data) => { if (data.length > 0 && !active) setActive(data[0].id) },
   })
+
+  useEffect(() => {
+    if (workspaces?.length > 0 && !active) setActive(workspaces[0].id)
+  }, [workspaces])
 
   const createMut = useMutation({
     mutationFn: () => createWorkspace({ name }),

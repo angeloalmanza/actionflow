@@ -45,7 +45,9 @@ class ProcessMeetingJob implements ShouldQueue
                 ]);
 
                 if ($assignee) {
-                    Mail::to($assignee->email)->queue(new TaskAssignedMail($task, $assignee));
+                    // Delay scaglionato per rispettare il rate limit SMTP (1 email/sec su piano free)
+                    Mail::to($assignee->email)
+                        ->later(now()->addSeconds($index + 1), new TaskAssignedMail($task, $assignee));
                 }
             }
 

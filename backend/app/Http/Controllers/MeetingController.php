@@ -52,6 +52,20 @@ class MeetingController extends Controller
         );
     }
 
+    public function retry(Meeting $meeting): JsonResponse
+    {
+        $this->authorizeWorkspace($meeting->workspace);
+
+        abort_unless($meeting->status === 'failed', 422, 'Solo i meeting falliti possono essere riprovati.');
+
+        $meeting->tasks()->delete();
+        $meeting->update(['status' => 'pending']);
+
+        ProcessMeetingJob::dispatch($meeting);
+
+        return response()->json($meeting);
+    }
+
     private function authorizeWorkspace(Workspace $workspace): void
     {
         abort_unless(

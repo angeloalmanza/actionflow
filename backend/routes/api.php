@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('workspaces/{workspace}/meetings',  [MeetingController::class, 'index']);
     Route::post('workspaces/{workspace}/meetings', [MeetingController::class, 'store']);
     Route::get('meetings/{meeting}',               [MeetingController::class, 'show']);
+    Route::post('meetings/{meeting}/retry',        [MeetingController::class, 'retry']);
 
     // Tasks
     Route::patch('tasks/{task}',  [TaskController::class, 'update']);

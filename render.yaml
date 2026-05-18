@@ -26,12 +26,16 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      - key: DB_SSLMODE
+        value: require
       - key: REDIS_CLIENT
         value: phpredis
+      - key: REDIS_SCHEME
+        value: tls
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
-        value: 6379
+        value: 6380
       - key: REDIS_PASSWORD
         sync: false
       - key: QUEUE_CONNECTION
@@ -86,12 +90,16 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
+      - key: DB_SSLMODE
+        value: require
       - key: REDIS_CLIENT
         value: phpredis
+      - key: REDIS_SCHEME
+        value: tls
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
-        value: 6379
+        value: 6380
       - key: REDIS_PASSWORD
         sync: false
       - key: QUEUE_CONNECTION

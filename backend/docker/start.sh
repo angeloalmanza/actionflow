@@ -13,6 +13,6 @@ php artisan config:cache
 php artisan route:cache
 php artisan migrate --force --no-interaction
 
-envsubst '${PORT}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '${PORT}' < /etc/nginx/templates/actionflow.conf.template > /etc/nginx/conf.d/actionflow.conf
 
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

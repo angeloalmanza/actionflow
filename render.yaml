@@ -1,0 +1,120 @@
+services:
+  - type: web
+    name: actionflow-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: CACHE_STORE
+        value: redis
+      - key: SESSION_DRIVER
+        value: redis
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: sandbox.smtp.mailtrap.io
+      - key: MAIL_PORT
+        value: 2525
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@actionflow.dev
+      - key: MAIL_FROM_NAME
+        value: ActionFlow
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: worker
+    name: actionflow-queue
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    startCommand: sh -c "php artisan config:cache && php artisan migrate --force --no-interaction && php artisan queue:work redis --sleep=3 --tries=3"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: REDIS_CLIENT
+        value: phpredis
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: CACHE_STORE
+        value: redis
+      - key: SESSION_DRIVER
+        value: redis
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: sandbox.smtp.mailtrap.io
+      - key: MAIL_PORT
+        value: 2525
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@actionflow.dev
+      - key: MAIL_FROM_NAME
+        value: ActionFlow

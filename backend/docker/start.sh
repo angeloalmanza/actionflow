@@ -5,7 +5,10 @@ export PORT=${PORT:-8080}
 
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-php artisan key:generate --no-interaction --force 2>/dev/null || true
+if [ -z "$APP_KEY" ]; then
+    php artisan key:generate --no-interaction
+fi
+
 php artisan config:cache
 php artisan route:cache
 php artisan migrate --force --no-interaction

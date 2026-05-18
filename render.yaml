@@ -35,7 +35,9 @@ services:
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
-        value: 6380
+        value: 6379
+      - key: REDIS_USERNAME
+        value: default
       - key: REDIS_PASSWORD
         sync: false
       - key: QUEUE_CONNECTION
@@ -99,7 +101,9 @@ services:
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
-        value: 6380
+        value: 6379
+      - key: REDIS_USERNAME
+        value: default
       - key: REDIS_PASSWORD
         sync: false
       - key: QUEUE_CONNECTION

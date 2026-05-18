@@ -13,8 +13,6 @@ php artisan config:cache
 php artisan route:cache
 php artisan migrate --force --no-interaction
 
-php-fpm -D
-
 envsubst '${PORT}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
 
-nginx -g "daemon off;"
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -17,7 +17,7 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf
+RUN rm -rf /etc/nginx/sites-enabled/* /etc/nginx/sites-available/* /etc/nginx/conf.d/*
 
 COPY docker/nginx.conf /etc/nginx/templates/actionflow.conf.template
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf

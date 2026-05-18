@@ -72,7 +72,7 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    startCommand: sh -c "php artisan config:cache && php artisan migrate --force --no-interaction && php artisan queue:work redis --sleep=3 --tries=3"
+    dockerCommand: sh -c "php artisan config:cache && php artisan migrate --force --no-interaction && php artisan queue:work redis --sleep=3 --tries=3"
     envVars:
       - key: APP_ENV
         value: production

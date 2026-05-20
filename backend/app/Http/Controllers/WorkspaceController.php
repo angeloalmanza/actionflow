@@ -92,8 +92,8 @@ class WorkspaceController extends Controller
             'tasks_per_day'         => $tasks->clone()
                 ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
                 ->where('created_at', '>=', now()->subDays(7))
-                ->groupBy('date')
-                ->orderBy('date')
+                ->groupByRaw('DATE(created_at)')
+                ->orderByRaw('DATE(created_at)')
                 ->get(),
         ]);
     }

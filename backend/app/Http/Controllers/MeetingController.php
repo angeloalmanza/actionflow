@@ -15,7 +15,9 @@ class MeetingController extends Controller
         $this->authorizeWorkspace($workspace);
 
         $meetings = $workspace->meetings()
-            ->withCount('tasks')
+            // reorder() rimuove l'orderBy('position') della relazione tasks:
+            // su Postgres un COUNT(*) con ORDER BY su colonna non aggregata fallisce.
+            ->withCount(['tasks' => fn ($query) => $query->reorder()])
             ->latest()
             ->get();
 

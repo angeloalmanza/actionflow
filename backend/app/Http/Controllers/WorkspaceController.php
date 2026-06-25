@@ -90,10 +90,12 @@ class WorkspaceController extends Controller
             'tasks_in_progress'     => $tasks->clone()->where('status', 'in_progress')->count(),
             'tasks_todo'            => $tasks->clone()->where('status', 'todo')->count(),
             'tasks_per_day'         => $tasks->clone()
-                ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->groupByRaw('DATE(created_at)')
-                ->orderByRaw('DATE(created_at)')
+                // tasks è HasManyThrough (tasks via meetings): entrambe le tabelle
+                // hanno created_at, quindi va qualificato con tasks.created_at.
+                ->selectRaw('DATE(tasks.created_at) as date, COUNT(*) as count')
+                ->where('tasks.created_at', '>=', now()->subDays(7))
+                ->groupByRaw('DATE(tasks.created_at)')
+                ->orderByRaw('DATE(tasks.created_at)')
                 ->get(),
         ]);
     }

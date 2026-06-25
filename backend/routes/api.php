@@ -21,17 +21,40 @@ Route::get('_debug/redis', function () {
         'queue_connection' => config('queue.default'),
     ];
 
+    // 1) client attualmente configurato (predis)
     try {
         $pong = \Illuminate\Support\Facades\Redis::connection()->ping();
-        return response()->json(['redis' => 'ok', 'ping' => $pong, 'config' => $info]);
+        $current = ['result' => 'ok', 'ping' => $pong];
     } catch (\Throwable $e) {
-        return response()->json([
-            'redis' => 'FAIL',
-            'error_class' => get_class($e),
-            'error' => $e->getMessage(),
-            'config' => $info,
-        ], 500);
+        $current = ['result' => 'FAIL', 'class' => get_class($e), 'error' => $e->getMessage()];
     }
+
+    // 2) test diretto con phpredis (estensione presente nell'immagine)
+    $phpredis = ['ext_loaded' => extension_loaded('redis')];
+    if ($phpredis['ext_loaded']) {
+        try {
+            $r = new \Redis();
+            $host = $cfg['host'];
+            $r->connect(($cfg['scheme'] === 'tls' ? 'tls://' : '').$host, (int) $cfg['port'], 3.0);
+            if (! empty($cfg['password'])) {
+                $r->auth(! empty($cfg['username'])
+                    ? [$cfg['username'], $cfg['password']]
+                    : $cfg['password']);
+            }
+            $phpredis['result'] = 'ok';
+            $phpredis['ping'] = $r->ping();
+        } catch (\Throwable $e) {
+            $phpredis['result'] = 'FAIL';
+            $phpredis['class'] = get_class($e);
+            $phpredis['error'] = $e->getMessage();
+        }
+    }
+
+    return response()->json([
+        'config'   => $info,
+        'current'  => $current,
+        'phpredis' => $phpredis,
+    ]);
 });
 
 // Rotte pubbliche (non richiedono autenticazione)

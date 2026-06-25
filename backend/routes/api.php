@@ -29,24 +29,35 @@ Route::get('_debug/redis', function () {
         $current = ['result' => 'FAIL', 'class' => get_class($e), 'error' => $e->getMessage()];
     }
 
-    // 2) test diretto con phpredis (estensione presente nell'immagine)
+    // Metadati password per scovare spazi/newline/troncamenti (mascherata).
+    $pw = (string) ($cfg['password'] ?? '');
+    $info['pw_len'] = strlen($pw);
+    $info['pw_trimmed_len'] = strlen(trim($pw));
+    $info['pw_preview'] = $pw === '' ? '' :
+        substr($pw, 0, 3).'…'.substr($pw, -2);
+    $info['pw_has_outer_space'] = $pw !== trim($pw);
+    $info['pw_has_quotes'] = (bool) preg_match('/^["\']|["\']$/', $pw);
+
+    // 2) test diretto phpredis con varie strategie di AUTH per isolare il problema.
     $phpredis = ['ext_loaded' => extension_loaded('redis')];
     if ($phpredis['ext_loaded']) {
-        try {
-            $r = new \Redis();
-            $host = $cfg['host'];
-            $r->connect(($cfg['scheme'] === 'tls' ? 'tls://' : '').$host, (int) $cfg['port'], 3.0);
-            if (! empty($cfg['password'])) {
-                $r->auth(! empty($cfg['username'])
-                    ? [$cfg['username'], $cfg['password']]
-                    : $cfg['password']);
+        $host = ($cfg['scheme'] === 'tls' ? 'tls://' : '').$cfg['host'];
+        $port = (int) $cfg['port'];
+        $strategies = [
+            'user+pass'      => fn ($r) => $r->auth([$cfg['username'], $pw]),
+            'pass-only'      => fn ($r) => $r->auth($pw),
+            'user+pass(trim)'=> fn ($r) => $r->auth([$cfg['username'], trim($pw)]),
+        ];
+        foreach ($strategies as $name => $authFn) {
+            try {
+                $r = new \Redis();
+                $r->connect($host, $port, 3.0);
+                $authFn($r);
+                $phpredis[$name] = 'ok ping='.$r->ping();
+                $r->close();
+            } catch (\Throwable $e) {
+                $phpredis[$name] = 'FAIL: '.$e->getMessage();
             }
-            $phpredis['result'] = 'ok';
-            $phpredis['ping'] = $r->ping();
-        } catch (\Throwable $e) {
-            $phpredis['result'] = 'FAIL';
-            $phpredis['class'] = get_class($e);
-            $phpredis['error'] = $e->getMessage();
         }
     }
 

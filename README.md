@@ -17,7 +17,7 @@ ActionFlow è una piattaforma full-stack che usa l'AI per eliminare il lavoro ma
 
 ```
 1. Incolla la trascrizione della riunione
-2. Laravel dispatcha un Job in coda Redis (risposta immediata)
+2. Laravel dispatcha un Job in coda su database (risposta immediata)
 3. Il worker chiama Groq AI (llama-3.3-70b) con JSON mode
 4. L'AI estrae task, assegnatari e scadenze
 5. I task appaiono nel Kanban board — email inviata a ogni membro
@@ -30,7 +30,7 @@ ActionFlow è una piattaforma full-stack che usa l'AI per eliminare il lavoro ma
 | Funzionalità | Implementazione |
 |---|---|
 | Autenticazione API | Laravel Sanctum (token-based) |
-| Job asincroni | Laravel Queues + Redis driver |
+| Job asincroni | Laravel Queues (driver `database`) |
 | Integrazione AI | Groq API (compatibile OpenAI) con JSON mode |
 | Fuzzy matching nomi | `similar_text()` PHP — abbina "Angelo" → "Angelo Demo" |
 | Drag & drop | `@hello-pangea/dnd` con aggiornamento ottimistico |

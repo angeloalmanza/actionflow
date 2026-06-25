@@ -86,9 +86,11 @@ class WorkspaceController extends Controller
         return response()->json([
             'meetings_count'        => $workspace->meetings()->count(),
             'tasks_total'           => $tasks->count(),
-            'tasks_done'            => $tasks->clone()->where('status', 'done')->count(),
-            'tasks_in_progress'     => $tasks->clone()->where('status', 'in_progress')->count(),
-            'tasks_todo'            => $tasks->clone()->where('status', 'todo')->count(),
+            // status va qualificato: tasks è HasManyThrough e anche la tabella
+            // meetings ha una colonna status, quindi non qualificato è ambiguo.
+            'tasks_done'            => $tasks->clone()->where('tasks.status', 'done')->count(),
+            'tasks_in_progress'     => $tasks->clone()->where('tasks.status', 'in_progress')->count(),
+            'tasks_todo'            => $tasks->clone()->where('tasks.status', 'todo')->count(),
             'tasks_per_day'         => $tasks->clone()
                 // tasks è HasManyThrough (tasks via meetings): entrambe le tabelle
                 // hanno created_at, quindi va qualificato con tasks.created_at.

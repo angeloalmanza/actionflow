@@ -6,6 +6,34 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
+// ⚠️ ROTTA DIAGNOSTICA TEMPORANEA — rimuovere dopo aver risolto Redis.
+// Mostra l'errore reale di connessione a Redis (password mascherata).
+Route::get('_debug/redis', function () {
+    $cfg = config('database.redis.default');
+    $info = [
+        'client' => config('database.redis.client'),
+        'scheme' => $cfg['scheme'] ?? null,
+        'host'   => $cfg['host'] ?? null,
+        'port'   => $cfg['port'] ?? null,
+        'username' => $cfg['username'] ?? null,
+        'has_password' => ! empty($cfg['password']),
+        'url_set' => ! empty($cfg['url']),
+        'queue_connection' => config('queue.default'),
+    ];
+
+    try {
+        $pong = \Illuminate\Support\Facades\Redis::connection()->ping();
+        return response()->json(['redis' => 'ok', 'ping' => $pong, 'config' => $info]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'redis' => 'FAIL',
+            'error_class' => get_class($e),
+            'error' => $e->getMessage(),
+            'config' => $info,
+        ], 500);
+    }
+});
+
 // Rotte pubbliche (non richiedono autenticazione)
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);

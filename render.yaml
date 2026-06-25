@@ -41,11 +41,11 @@ services:
       - key: REDIS_PASSWORD
         sync: false
       - key: QUEUE_CONNECTION
-        value: redis
+        value: database
       - key: CACHE_STORE
-        value: redis
+        value: file
       - key: SESSION_DRIVER
-        value: redis
+        value: file
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_BASE_URL

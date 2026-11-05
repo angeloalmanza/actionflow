@@ -4,6 +4,7 @@
 
 ActionFlow è una piattaforma full-stack che usa l'AI per eliminare il lavoro manuale post-riunione: incolla la trascrizione, l'AI estrae gli action items, li assegna ai membri del team e aggiorna il Kanban board — il tutto in background.
 
+![CI](https://github.com/angeloalmanza/actionflow/actions/workflows/ci.yml/badge.svg)
 ![Stack](https://img.shields.io/badge/Laravel-11-FF2D20?style=flat&logo=laravel&logoColor=white)
 ![Stack](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react&logoColor=black)
 ![Stack](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)

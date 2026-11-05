@@ -13,7 +13,7 @@ class TaskController extends Controller
         $this->authorizeTask($task);
 
         $data = $request->validate([
-            'status'   => 'sometimes|in:todo,in_progress,done',
+            'status' => 'sometimes|in:todo,in_progress,done',
             'position' => 'sometimes|integer|min:0',
             'assignee_id' => 'sometimes|nullable|exists:users,id',
             'due_date' => 'sometimes|nullable|date',

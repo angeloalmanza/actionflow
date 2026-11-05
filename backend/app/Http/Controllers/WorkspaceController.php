@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class WorkspaceController extends Controller
         ]);
 
         $workspace = Workspace::create([
-            'name'     => $data['name'],
+            'name' => $data['name'],
             'owner_id' => $request->user()->id,
         ]);
 
@@ -41,7 +42,7 @@ class WorkspaceController extends Controller
 
         return response()->json(
             $workspace->load(['owner', 'members', 'tasks.assignee'])
-                      ->loadCount(['meetings', 'tasks'])
+                ->loadCount(['meetings', 'tasks'])
         );
     }
 
@@ -53,7 +54,7 @@ class WorkspaceController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        $user = \App\Models\User::where('email', $data['email'])->first();
+        $user = User::where('email', $data['email'])->first();
 
         if ($workspace->members()->where('user_id', $user->id)->exists()) {
             return response()->json(['message' => 'Utente già membro.'], 422);
@@ -84,14 +85,14 @@ class WorkspaceController extends Controller
         $tasks = $workspace->tasks();
 
         return response()->json([
-            'meetings_count'        => $workspace->meetings()->count(),
-            'tasks_total'           => $tasks->count(),
+            'meetings_count' => $workspace->meetings()->count(),
+            'tasks_total' => $tasks->count(),
             // status va qualificato: tasks è HasManyThrough e anche la tabella
             // meetings ha una colonna status, quindi non qualificato è ambiguo.
-            'tasks_done'            => $tasks->clone()->where('tasks.status', 'done')->count(),
-            'tasks_in_progress'     => $tasks->clone()->where('tasks.status', 'in_progress')->count(),
-            'tasks_todo'            => $tasks->clone()->where('tasks.status', 'todo')->count(),
-            'tasks_per_day'         => $tasks->clone()
+            'tasks_done' => $tasks->clone()->where('tasks.status', 'done')->count(),
+            'tasks_in_progress' => $tasks->clone()->where('tasks.status', 'in_progress')->count(),
+            'tasks_todo' => $tasks->clone()->where('tasks.status', 'todo')->count(),
+            'tasks_per_day' => $tasks->clone()
                 // tasks è HasManyThrough (tasks via meetings): entrambe le tabelle
                 // hanno created_at, quindi va qualificato con tasks.created_at.
                 ->selectRaw('DATE(tasks.created_at) as date, COUNT(*) as count')

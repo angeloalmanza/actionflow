@@ -29,14 +29,14 @@ class MeetingController extends Controller
         $this->authorizeWorkspace($workspace);
 
         $data = $request->validate([
-            'title'          => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'raw_transcript' => 'required|string|min:50',
         ]);
 
         $meeting = $workspace->meetings()->create([
-            'title'          => $data['title'],
+            'title' => $data['title'],
             'raw_transcript' => $data['raw_transcript'],
-            'status'         => 'pending',
+            'status' => 'pending',
         ]);
 
         // Dispatcha il job in background — Redis lo metterà in coda

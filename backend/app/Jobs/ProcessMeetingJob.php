@@ -17,6 +17,7 @@ class ProcessMeetingJob implements ShouldQueue
     use Queueable;
 
     public int $tries = 3;
+
     public int $timeout = 120;
 
     public function __construct(public Meeting $meeting) {}
@@ -27,21 +28,21 @@ class ProcessMeetingJob implements ShouldQueue
 
         try {
             $extractedTasks = $this->extractTasksFromTranscript();
-            $members        = $this->meeting->workspace->members()->get();
+            $members = $this->meeting->workspace->members()->get();
 
             foreach ($extractedTasks as $index => $taskData) {
                 $assignee = $this->matchAssignee($taskData['assignee_name'] ?? null, $members);
 
                 $task = Task::create([
-                    'meeting_id'   => $this->meeting->id,
+                    'meeting_id' => $this->meeting->id,
                     'workspace_id' => $this->meeting->workspace_id,
-                    'assignee_id'  => $assignee?->id,
-                    'title'        => $taskData['title'],
-                    'description'  => $taskData['description'] ?? null,
-                    'due_date'     => $taskData['due_date'] ?? null,
-                    'priority'     => $taskData['priority'] ?? 'medium',
-                    'status'       => 'todo',
-                    'position'     => $index,
+                    'assignee_id' => $assignee?->id,
+                    'title' => $taskData['title'],
+                    'description' => $taskData['description'] ?? null,
+                    'due_date' => $taskData['due_date'] ?? null,
+                    'priority' => $taskData['priority'] ?? 'medium',
+                    'status' => 'todo',
+                    'position' => $index,
                 ]);
 
                 if ($assignee) {
@@ -52,7 +53,7 @@ class ProcessMeetingJob implements ShouldQueue
             }
 
             $this->meeting->update([
-                'status'       => 'done',
+                'status' => 'done',
                 'processed_at' => now(),
             ]);
         } catch (Throwable $e) {
@@ -64,15 +65,15 @@ class ProcessMeetingJob implements ShouldQueue
     private function extractTasksFromTranscript(): array
     {
         $response = OpenAI::chat()->create([
-            'model'           => 'llama-3.3-70b-versatile',
+            'model' => 'llama-3.3-70b-versatile',
             'response_format' => ['type' => 'json_object'],
-            'messages'        => [
+            'messages' => [
                 [
-                    'role'    => 'system',
+                    'role' => 'system',
                     'content' => 'Sei un assistente che estrae action items da trascrizioni di riunioni. Rispondi sempre in JSON valido.',
                 ],
                 [
-                    'role'    => 'user',
+                    'role' => 'user',
                     'content' => $this->buildPrompt(),
                 ],
             ],
@@ -104,19 +105,19 @@ Trascrizione:
 PROMPT;
     }
 
-    private function matchAssignee(string|null $name, $members): User|null
+    private function matchAssignee(?string $name, $members): ?User
     {
         if (! $name) {
             return null;
         }
 
-        $bestMatch  = null;
-        $bestScore  = 0;
-        $nameLower  = strtolower(trim($name));
+        $bestMatch = null;
+        $bestScore = 0;
+        $nameLower = strtolower(trim($name));
 
         foreach ($members as $member) {
             // Confronta con nome completo e solo con il primo nome
-            $fullName  = strtolower($member->name);
+            $fullName = strtolower($member->name);
             $firstName = strtolower(explode(' ', $member->name)[0]);
 
             similar_text($nameLower, $fullName, $scoreFullName);

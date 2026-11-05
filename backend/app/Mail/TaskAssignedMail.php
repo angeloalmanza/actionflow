@@ -2,10 +2,10 @@
 
 namespace App\Mail;
 
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -15,8 +15,8 @@ class TaskAssignedMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public \App\Models\Task $task,
-        public \App\Models\User $assignee,
+        public Task $task,
+        public User $assignee,
     ) {}
 
     public function envelope(): Envelope
@@ -31,9 +31,9 @@ class TaskAssignedMail extends Mailable
         return new Content(
             markdown: 'emails.task-assigned',
             with: [
-                'task'     => $this->task,
+                'task' => $this->task,
                 'assignee' => $this->assignee,
-                'appUrl'   => env('APP_URL', 'http://localhost'),
+                'appUrl' => env('APP_URL', 'http://localhost'),
             ],
         );
     }
